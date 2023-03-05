@@ -64,27 +64,3 @@ VALUES(1,'Action','TestTest',2.99,1002);
 SELECT * FROM summarytable
 
 
---PROCEDURE--
-CREATE PROCEDURE refresh_table()
-LANGUAGE PLPGSQL
-AS $$
-BEGIN
-	INSERT INTO detailed(
-	customer_id, -- customer
-	first_name, -- customer
-	last_name, -- customer
-	email, -- customer
-	rental_id, -- rental
-	rental_date, -- rental
-	return_date, -- rental
-	staff_id  --rental
-)
-	SELECT 
-		c.customer_id, c.first_name, c.last_name, c.email,
-		r.rental_id, r.rental_date, r.return_date, r.staff_id
-	FROM rental AS r 
-	INNER JOIN customer AS c ON c.customer_id = r.customer_id;
-END;$$
-
-
-
