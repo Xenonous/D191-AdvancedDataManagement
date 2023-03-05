@@ -1,56 +1,46 @@
---Query for creating the requested detailed table, it's empty, as no values have been past into it yet.
-
 CREATE TABLE detailedtable(
 	category_id integer,
 	category_name varchar (20),
-	title varchar (200),
+	title_and_year varchar (200),
 	rental_rate numeric (4,2),
 	film_id integer
 );
 
 --Query for looking up the empty detailed table.
-
 SELECT * FROM detailedtable
-
---Query for creating the requested summarytable, it's empty, as no values have been past into it yet.
 
 CREATE TABLE summarytable(
 	category_id integer,
 	category_name varchar (20),
-	total_retale_rate numeric
+	total_rental_rate numeric
 );
 
 --Query for looking up the empty summary table.
-
 SELECT * FROM summarytable
-
---Query for inserting data into detailed table. Uses two INNER JOINS on the film_category and film tables.
 
 INSERT INTO detailedtable(
 	category_id,
 	category_name,
-	title ,
+	title_and_year,
 	rental_rate,
 	film_id
 )
 
-SELECT category.category_id,category.name,film.title,film.rental_rate,film_category.film_id
+SELECT category.category_id,category.name,CONCAT(film.title,' (',film.release_year,')'),film.rental_rate,film_category.film_id
 FROM category
 INNER JOIN film_category ON category.category_id = film_category.category_id
 INNER JOIN film ON film_category.film_id = film.film_id
 ORDER BY category_id ASC
 
---Query for looking up the now filled detailed table. 
 
+--Query for looking up the now filled detailed table. 
 SELECT * FROM detailedtable
 
-                                                               --FUNCTION---
-
+--FUNCTION---
 CREATE FUNCTION get_summarytable()
 RETURNS TRIGGER AS $$
 BEGIN
-	DELETE FROM summarytable
-
+	DELETE FROM summarytable;
 	INSERT INTO summarytable(
 	SELECT category_id,category_name, SUM(rental_rate) AS rental_rate FROM detailedtable
 	GROUP BY category_name,category_id
@@ -60,22 +50,21 @@ RETURN NEW;
 END; $$
 LANGUAGE PLPGSQL;
 
-                                                            --TRIGGER FUNCTION--
-
+--TRIGGER FUNCTION--
 CREATE TRIGGER summary_trigger
-AFTER INSERT ON summarytable
+AFTER INSERT ON detailedtable
 FOR EACH ROW
-EXECUTE PROCEDURE summary_retail_table()
+EXECUTE PROCEDURE get_summarytable()
 
 --PERFORM AN INSERT ON detailedtable to test the trigger function.
-
-INSERT INTO detailedtable(category_id,category_name,title,rental_rate,film_id)
+INSERT INTO detailedtable(category_id,category_name,title_and_year,rental_rate,film_id)
 VALUES(1,'Action','TestTest',2.99,1002);
 
 --SUMMARYTABLE SHOULD BE UPDATED.
 SELECT * FROM summarytable
 
-                                                                --PROCEDURE--
+
+--PROCEDURE--
 CREATE PROCEDURE refresh_table()
 LANGUAGE PLPGSQL
 AS $$
