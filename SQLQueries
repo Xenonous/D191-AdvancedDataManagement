@@ -1,3 +1,5 @@
+--D191 Advanced Data Management
+--BUSINESS QUESTION: WHAT FILM GENRE IS SOLD THE MOST?
 -------------------------------------------------TABLE CREATION------------------------------------------------------
 CREATE TABLE detailedtable(
 	category_id integer, 
@@ -59,7 +61,7 @@ EXECUTE PROCEDURE get_summarytable()
 
 --------------------------------------------------------------------------------------------------------------------------
 INSERT INTO detailedtable(category_id,category_name,title_and_year,rental_rate,film_id)  
-VALUES(1,'Action','TestTest',2.99,1002);  --PERFORM AN INSERT ON detailedtable to test the trigger function.
+VALUES(1,'Action','TestTest(2016)',2.99,1002);  --PERFORM AN INSERT ON detailedtable to test the trigger function.
 
 SELECT * FROM summarytable --SUMMARYTABLE SHOULD BE UPDATED.
 
@@ -88,4 +90,3 @@ END;$$
 
 --------------------------------------------------------------------------------------------------------------------------
 CALL refresh() --To execute the procedure
-
